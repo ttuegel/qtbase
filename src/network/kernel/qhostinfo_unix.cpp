@@ -98,7 +98,7 @@ static bool resolveLibraryInternal()
     if (!lib.load())
 #endif
     {
-        lib.setFileName(QLatin1String("resolv"));
+        lib.setFileName(QLatin1String(NIXPKGS_LIBRESOLV));
         if (!lib.load())
             return false;
     }
