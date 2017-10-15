@@ -88,7 +88,7 @@ CONFIG(static, static|shared)|prefix_build {
     }
 }
 
-target.path = $$[QT_INSTALL_PLUGINS]/$$PLUGIN_TYPE
+target.path = $$NIX_OUTPUT_PLUGIN/$$PLUGIN_TYPE
 INSTALLS += target
 
 TARGET = $$qt5LibraryTarget($$TARGET)

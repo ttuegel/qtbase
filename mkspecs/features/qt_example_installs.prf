@@ -77,13 +77,13 @@ for(extra, extras): \
 # Just for Qt Creator
 OTHER_FILES += $$sourcefiles
 
-sourcefiles += \
-    $$_PRO_FILE_ $$RC_FILE $$DEF_FILE \
-    $$SOURCES $$HEADERS $$FORMS $$RESOURCES $$TRANSLATIONS \
-    $$DBUS_ADAPTORS $$DBUS_INTERFACES
-addInstallFiles(sources.files, $$sourcefiles)
-sources.path = $$[QT_INSTALL_EXAMPLES]/$$probase
-INSTALLS += sources
+    sourcefiles += \
+        $$_PRO_FILE_ $$RC_FILE $$DEF_FILE \
+        $$SOURCES $$HEADERS $$FORMS $$RESOURCES $$TRANSLATIONS \
+        $$DBUS_ADAPTORS $$DBUS_INTERFACES
+    addInstallFiles(sources.files, $$sourcefiles)
+    sources.path = $$NIX_OUTPUT_DEV/share/examples/$$probase
+    INSTALLS += sources
 
 check_examples {
     srcfiles = $$sources.files
