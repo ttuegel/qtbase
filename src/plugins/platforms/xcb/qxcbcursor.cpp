@@ -311,10 +311,10 @@ QXcbCursor::QXcbCursor(QXcbConnection *conn, QXcbScreen *screen)
 #if defined(XCB_USE_XLIB) && QT_CONFIG(library)
     static bool function_ptrs_not_initialized = true;
     if (function_ptrs_not_initialized) {
-        QLibrary xcursorLib(QLatin1String("Xcursor"), 1);
+        QLibrary xcursorLib(QLatin1String(NIXPKGS_LIBXCURSOR), 1);
         bool xcursorFound = xcursorLib.load();
         if (!xcursorFound) { // try without the version number
-            xcursorLib.setFileName(QLatin1String("Xcursor"));
+            xcursorLib.setFileName(QLatin1String(NIXPKGS_LIBXCURSOR));
             xcursorFound = xcursorLib.load();
         }
         if (xcursorFound) {
