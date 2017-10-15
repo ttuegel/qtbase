@@ -570,7 +570,14 @@ void (*QGLXContext::getProcAddress(const QByteArray &procName)) ()
 #ifndef QT_NO_LIBRARY
                 extern const QString qt_gl_library_name();
 //                QLibrary lib(qt_gl_library_name());
+                // Check system library paths first
                 QLibrary lib(QLatin1String("GL"));
+#ifdef NIXPKGS_MESA_GL
+                if (!lib.load()) {
+                    // Fallback to Mesa driver
+                    lib.setFileName(QLatin1String(NIXPKGS_MESA_GL));
+                }
+#endif // NIXPKGS_MESA_GL
                 glXGetProcAddressARB = (qt_glXGetProcAddressARB) lib.resolve("glXGetProcAddressARB");
 #endif
             }
