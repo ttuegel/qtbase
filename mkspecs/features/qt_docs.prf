@@ -41,7 +41,7 @@ QMAKE_DOCS_OUTPUTDIR = $$QMAKE_DOCS_BASE_OUTDIR/$$QMAKE_DOCS_TARGETDIR
 
 QDOC += -outputdir $$shell_quote($$QMAKE_DOCS_OUTPUTDIR)
 !build_online_docs: \
-    QDOC += -installdir $$shell_quote($$[QT_INSTALL_DOCS])
+    QDOC += -installdir $$shell_quote($$NIX_OUTPUT_DOC)
 PREP_DOC_INDEXES =
 DOC_INDEXES =
 !isEmpty(QTREPOS) {
@@ -60,8 +60,8 @@ DOC_INDEXES =
         DOC_INDEXES += -indexdir $$shell_quote($$qrep/doc)
 } else {
     prepare_docs: \
-        PREP_DOC_INDEXES += -indexdir $$shell_quote($$[QT_INSTALL_DOCS/get])
-    DOC_INDEXES += -indexdir $$shell_quote($$[QT_INSTALL_DOCS/get])
+        PREP_DOC_INDEXES += -indexdir $$shell_quote($$NIX_OUTPUT_DOC)
+    DOC_INDEXES += -indexdir $$shell_quote($$NIX_OUTPUT_DOC)
 }
 doc_command = $$QDOC $$QMAKE_DOCS
 prepare_docs {
@@ -75,12 +75,12 @@ prepare_docs {
     qch_docs.commands = $$QHELPGENERATOR $$shell_quote($$QMAKE_DOCS_OUTPUTDIR/$${QMAKE_DOCS_TARGET}.qhp) -o $$shell_quote($$QMAKE_DOCS_BASE_OUTDIR/$${QMAKE_DOCS_TARGET}.qch)
 
     inst_html_docs.files = $$QMAKE_DOCS_OUTPUTDIR
-    inst_html_docs.path = $$[QT_INSTALL_DOCS]
+    inst_html_docs.path = $$NIX_OUTPUT_DOC
     inst_html_docs.CONFIG += no_check_exist directory no_default_install no_build
     INSTALLS += inst_html_docs
 
     inst_qch_docs.files = $$QMAKE_DOCS_BASE_OUTDIR/$${QMAKE_DOCS_TARGET}.qch
-    inst_qch_docs.path = $$[QT_INSTALL_DOCS]
+    inst_qch_docs.path = $$NIX_OUTPUT_DOC
     inst_qch_docs.CONFIG += no_check_exist no_default_install no_build
     INSTALLS += inst_qch_docs
 

@@ -17,10 +17,7 @@ fq_qml_files = $$_PRO_FILE_PWD_/qmldir
 
 for(qmlf, QML_FILES): fq_qml_files += $$absolute_path($$qmlf, $$_PRO_FILE_PWD_)
 
-qml1_target: \
-    instbase = $$[QT_INSTALL_IMPORTS]
-else: \
-    instbase = $$[QT_INSTALL_QML]
+instbase = $$NIX_OUTPUT_QML
 
 # Install rules
 qmldir.base = $$_PRO_FILE_PWD_

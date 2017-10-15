@@ -70,7 +70,7 @@ probase = $$relative_path($$_PRO_FILE_PWD_, $$dirname(_QMAKE_CONF_)/examples)
         $$SOURCES $$HEADERS $$FORMS $$RESOURCES $$TRANSLATIONS \
         $$DBUS_ADAPTORS $$DBUS_INTERFACES
     addInstallFiles(sources.files, $$sourcefiles)
-    sources.path = $$[QT_INSTALL_EXAMPLES]/$$probase
+    sources.path = $$NIX_OUTPUT_DEV/share/examples/$$probase
     INSTALLS += sources
 
     check_examples {

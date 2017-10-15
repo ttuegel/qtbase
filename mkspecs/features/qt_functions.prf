@@ -70,7 +70,7 @@ defineTest(qtHaveModule) {
 defineTest(qtPrepareTool) {
     cmd = $$eval(QT_TOOL.$${2}.binary)
     isEmpty(cmd) {
-        cmd = $$[QT_HOST_BINS]/$$2
+        cmd = $$system("type -p $$2")
         exists($${cmd}.pl) {
             cmd = perl -w $$system_path($${cmd}.pl)
         } else: contains(QMAKE_HOST.os, Windows) {
