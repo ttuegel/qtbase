@@ -32,8 +32,8 @@ contains(TEMPLATE, .*lib) {
         qqt_libdir = \$\$\$\$[QT_HOST_LIBS]
         qt_libdir = $$[QT_HOST_LIBS]
     } else {
-        qqt_libdir = \$\$\$\$[QT_INSTALL_LIBS]
-        qt_libdir = $$[QT_INSTALL_LIBS]
+        qqt_libdir = \$\$\$\$NIX_OUTPUT_OUT/lib
+        qt_libdir = $$NIX_OUTPUT_OUT/lib
     }
     contains(QMAKE_DEFAULT_LIBDIRS, $$qt_libdir) {
         lib_replace.match = "[^ ']*$$rplbase/lib"
