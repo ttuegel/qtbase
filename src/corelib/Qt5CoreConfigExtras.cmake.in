@@ -3,7 +3,7 @@ if (NOT TARGET Qt5::qmake)
     add_executable(Qt5::qmake IMPORTED)
 
 !!IF isEmpty(CMAKE_BIN_DIR_IS_ABSOLUTE)
-    set(imported_location \"${_qt5Core_install_prefix}/$${CMAKE_BIN_DIR}qmake$$CMAKE_BIN_SUFFIX\")
+    set(imported_location \"$$NIX_OUTPUT_DEV/$${CMAKE_BIN_DIR}qmake$$CMAKE_BIN_SUFFIX\")
 !!ELSE
     set(imported_location \"$${CMAKE_BIN_DIR}qmake$$CMAKE_BIN_SUFFIX\")
 !!ENDIF
@@ -18,7 +18,7 @@ if (NOT TARGET Qt5::moc)
     add_executable(Qt5::moc IMPORTED)
 
 !!IF isEmpty(CMAKE_BIN_DIR_IS_ABSOLUTE)
-    set(imported_location \"${_qt5Core_install_prefix}/$${CMAKE_BIN_DIR}moc$$CMAKE_BIN_SUFFIX\")
+    set(imported_location \"$$NIX_OUTPUT_DEV/$${CMAKE_BIN_DIR}moc$$CMAKE_BIN_SUFFIX\")
 !!ELSE
     set(imported_location \"$${CMAKE_BIN_DIR}moc$$CMAKE_BIN_SUFFIX\")
 !!ENDIF
@@ -35,7 +35,7 @@ if (NOT TARGET Qt5::rcc)
     add_executable(Qt5::rcc IMPORTED)
 
 !!IF isEmpty(CMAKE_BIN_DIR_IS_ABSOLUTE)
-    set(imported_location \"${_qt5Core_install_prefix}/$${CMAKE_BIN_DIR}rcc$$CMAKE_BIN_SUFFIX\")
+    set(imported_location \"$$NIX_OUTPUT_DEV/$${CMAKE_BIN_DIR}rcc$$CMAKE_BIN_SUFFIX\")
 !!ELSE
     set(imported_location \"$${CMAKE_BIN_DIR}rcc$$CMAKE_BIN_SUFFIX\")
 !!ENDIF
@@ -131,7 +131,7 @@ if (NOT TARGET Qt5::WinMain)
 !!IF !isEmpty(CMAKE_RELEASE_TYPE)
     set_property(TARGET Qt5::WinMain APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 !!IF isEmpty(CMAKE_LIB_DIR_IS_ABSOLUTE)
-    set(imported_location \"${_qt5Core_install_prefix}/$${CMAKE_LIB_DIR}$${CMAKE_WINMAIN_FILE_LOCATION_RELEASE}\")
+    set(imported_location \"$$NIX_OUTPUT_DEV/$${CMAKE_LIB_DIR}$${CMAKE_WINMAIN_FILE_LOCATION_RELEASE}\")
 !!ELSE
     set(imported_location \"$${CMAKE_LIB_DIR}$${CMAKE_WINMAIN_FILE_LOCATION_RELEASE}\")
 !!ENDIF
@@ -145,7 +145,7 @@ if (NOT TARGET Qt5::WinMain)
     set_property(TARGET Qt5::WinMain APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 
 !!IF isEmpty(CMAKE_LIB_DIR_IS_ABSOLUTE)
-    set(imported_location \"${_qt5Core_install_prefix}/$${CMAKE_LIB_DIR}$${CMAKE_WINMAIN_FILE_LOCATION_DEBUG}\")
+    set(imported_location \"$$NIX_OUTPUT_DEV/$${CMAKE_LIB_DIR}$${CMAKE_WINMAIN_FILE_LOCATION_DEBUG}\")
 !!ELSE
     set(imported_location \"$${CMAKE_LIB_DIR}$${CMAKE_WINMAIN_FILE_LOCATION_DEBUG}\")
 !!ENDIF
