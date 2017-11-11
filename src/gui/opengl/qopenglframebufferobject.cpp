@@ -949,6 +949,12 @@ QOpenGLFramebufferObject::~QOpenGLFramebufferObject()
         d->stencil_buffer_guard->free();
     if (d->fbo_guard)
         d->fbo_guard->free();
+
+    QOpenGLContextPrivate *contextPrv = QOpenGLContextPrivate::get(QOpenGLContext::currentContext());
+    if (contextPrv && contextPrv->qgl_current_fbo == this) {
+        contextPrv->qgl_current_fbo_invalid = true;
+        contextPrv->qgl_current_fbo = Q_NULLPTR;
+    }
 }
 
 /*!
@@ -1281,11 +1287,11 @@ static inline QImage qt_gl_read_framebuffer_rgba8(const QSize &size, bool includ
                               ? context->hasExtension(QByteArrayLiteral("GL_EXT_read_format_bgra"))
                               : context->hasExtension(QByteArrayLiteral("GL_EXT_bgra"));
 
+#ifndef Q_OS_IOS
     const char *renderer = reinterpret_cast<const char *>(funcs->glGetString(GL_RENDERER));
     const char *ver = reinterpret_cast<const char *>(funcs->glGetString(GL_VERSION));
 
     // Blacklist GPU chipsets that have problems with their BGRA support.
-#ifndef Q_OS_IOS
     const bool blackListed = (qstrcmp(renderer, "PowerVR Rogue G6200") == 0
                              && ::strstr(ver, "1.3") != 0) ||
                              (qstrcmp(renderer, "Mali-T760") == 0
@@ -1490,6 +1496,7 @@ bool QOpenGLFramebufferObject::bindDefault()
     if (ctx) {
         ctx->functions()->glBindFramebuffer(GL_FRAMEBUFFER, ctx->defaultFramebufferObject());
         QOpenGLContextPrivate::get(ctx)->qgl_current_fbo_invalid = true;
+        QOpenGLContextPrivate::get(ctx)->qgl_current_fbo = Q_NULLPTR;
     }
 #ifdef QT_DEBUG
     else
