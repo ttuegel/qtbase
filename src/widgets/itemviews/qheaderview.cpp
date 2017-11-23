@@ -39,7 +39,6 @@
 
 #include "qheaderview.h"
 
-#ifndef QT_NO_ITEMVIEWS
 #include <qbitarray.h>
 #include <qbrush.h>
 #include <qdebug.h>
@@ -47,7 +46,9 @@
 #include <qpainter.h>
 #include <qscrollbar.h>
 #include <qtooltip.h>
+#if QT_CONFIG(whatsthis)
 #include <qwhatsthis.h>
+#endif
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qvector.h>
@@ -2641,7 +2642,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
         }
         break; }
 #endif
-#ifndef QT_NO_WHATSTHIS
+#if QT_CONFIG(whatsthis)
     case QEvent::QueryWhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
@@ -2661,8 +2662,8 @@ bool QHeaderView::viewportEvent(QEvent *e)
              }
         }
         break; }
-#endif // QT_NO_WHATSTHIS
-#ifndef QT_NO_STATUSTIP
+#endif // QT_CONFIG(whatsthis)
+#if QT_CONFIG(statustip)
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
@@ -2673,7 +2674,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
                 setStatusTip(statustip);
         }
         return true; }
-#endif // QT_NO_STATUSTIP
+#endif // QT_CONFIG(statustip)
     case QEvent::FontChange:
     case QEvent::StyleChange:
         d->invalidateCachedSizeHint();
@@ -3363,7 +3364,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         // because it isn't stretch, determine its width and remove that from lengthToStretch
         int sectionSize = 0;
         if (resizeMode == QHeaderView::Interactive || resizeMode == QHeaderView::Fixed) {
-            sectionSize = headerSectionSize(i);
+            sectionSize = qBound(q->minimumSectionSize(), headerSectionSize(i), q->maximumSectionSize());
         } else { // resizeMode == QHeaderView::ResizeToContents
             int logicalIndex = q->logicalIndex(i);
             sectionSize = qMax(viewSectionSizeHint(logicalIndex),
@@ -3538,6 +3539,8 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
 
         // cascade the section size change
         for (int i = visual + 1; i < sectionCount(); ++i) {
+            if (isVisualIndexHidden(i))
+                continue;
             if (!sectionIsCascadable(i))
                 continue;
             int currentSectionSize = headerSectionSize(i);
@@ -3580,6 +3583,8 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
         // cascade the section size change
         if (delta < 0 && newSize < minimumSize) {
             for (int i = visual - 1; i >= 0; --i) {
+                if (isVisualIndexHidden(i))
+                    continue;
                 if (!sectionIsCascadable(i))
                     continue;
                 int sectionSize = headerSectionSize(i);
@@ -3594,6 +3599,8 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
         // let the next section get the space from the resized section
         if (!sectionResized) {
             for (int i = visual + 1; i < sectionCount(); ++i) {
+                if (isVisualIndexHidden(i))
+                    continue;
                 if (!sectionIsCascadable(i))
                     continue;
                 int currentSectionSize = headerSectionSize(i);
@@ -3946,7 +3953,5 @@ bool QHeaderViewPrivate::read(QDataStream &in)
 #endif // QT_NO_DATASTREAM
 
 QT_END_NAMESPACE
-
-#endif // QT_NO_ITEMVIEWS
 
 #include "moc_qheaderview.cpp"
