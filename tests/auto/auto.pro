@@ -21,7 +21,6 @@ installed_cmake.depends = cmake
 
 uikit: SUBDIRS  = corelib gui
 
-wince:                                      SUBDIRS -= printsupport
 cross_compile:                              SUBDIRS -= tools cmake installed_cmake
 else:!qtConfig(process):                    SUBDIRS -= tools
 !qtHaveModule(opengl):                      SUBDIRS -= opengl
@@ -43,4 +42,9 @@ else:!qtConfig(process):                    SUBDIRS -= tools
             warning("QtDBus is enabled with runtime support, but session bus is not available. Skipping QtDBus tests.")
         SUBDIRS -= dbus
     }
+}
+
+# QTBUG-63915
+boot2qt: {
+    SUBDIRS -= dbus
 }

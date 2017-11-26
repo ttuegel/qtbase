@@ -92,7 +92,7 @@ EphemeralSecKeychain::EphemeralSecKeychain()
 {
     const auto uuid = QUuid::createUuid();
     if (uuid.isNull()) {
-        qCWarning(lcSsl) << "Failed to create an unique keychain name";
+        qCWarning(lcSsl) << "Failed to create a unique keychain name";
         return;
     }
 
@@ -931,7 +931,7 @@ bool QSslSocketBackendPrivate::setSessionCertificate(QString &errorDescription, 
 #endif
         QCFType<CFDictionaryRef> options = CFDictionaryCreate(nullptr, keys, values, nKeys,
                                                               nullptr, nullptr);
-        CFArrayRef items = nullptr;
+        QCFType<CFArrayRef> items;
         OSStatus err = SecPKCS12Import(pkcs12, options, &items);
         if (err != noErr) {
 #ifdef QSSLSOCKET_DEBUG
@@ -972,7 +972,7 @@ bool QSslSocketBackendPrivate::setSessionCertificate(QString &errorDescription, 
 
         CFArrayAppendValue(certs, identity);
 
-        QCFType<CFArrayRef> chain((CFArrayRef)CFDictionaryGetValue(import, kSecImportItemCertChain));
+        CFArrayRef chain = (CFArrayRef)CFDictionaryGetValue(import, kSecImportItemCertChain);
         if (chain) {
             for (CFIndex i = 1, e = CFArrayGetCount(chain); i < e; ++i)
                 CFArrayAppendValue(certs, CFArrayGetValueAtIndex(chain, i));
