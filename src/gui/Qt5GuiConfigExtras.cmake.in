@@ -23,7 +23,7 @@ macro(_populate_qt5gui_gl_target_properties TargetName Configuration LIB_LOCATIO
 !!ENDIF
 
 !!IF isEmpty(CMAKE_LIB_DIR_IS_ABSOLUTE)
-    set(imported_implib \"$$NIX_OUTPUT_DEV/$${CMAKE_LIB_DIR}${IMPLIB_LOCATION}\")
+    set(imported_implib \"$$NIX_OUTPUT_OUT/$${CMAKE_LIB_DIR}${IMPLIB_LOCATION}\")
 !!ELSE
     set(imported_implib \"$${CMAKE_LIB_DIR}${IMPLIB_LOCATION}\")
 !!ENDIF

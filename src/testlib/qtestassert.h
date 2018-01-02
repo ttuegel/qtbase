@@ -38,10 +38,13 @@
 
 QT_BEGIN_NAMESPACE
 
-
-#define QTEST_ASSERT(cond) do { if (!(cond)) qt_assert(#cond,__FILE__,__LINE__); } while (0)
-
-#define QTEST_ASSERT_X(cond, where, what) do { if (!(cond)) qt_assert_x(where, what,__FILE__,__LINE__); } while (0)
+#if defined(QT_NO_DEBUG) && !defined(QT_FORCE_ASSERTS)
+#define QTEST_ASSERT(cond) do { } while ((false) && (cond))
+#define QTEST_ASSERT_X(cond, where, what) do { } while ((false) && (cond))
+#else
+#define QTEST_ASSERT(cond) do { if (!(cond)) qt_assert(#cond,__FILE__,__LINE__); } while (false)
+#define QTEST_ASSERT_X(cond, where, what) do { if (!(cond)) qt_assert_x(where, what,__FILE__,__LINE__); } while (false)
+#endif
 
 QT_END_NAMESPACE
 
