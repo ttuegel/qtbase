@@ -50,8 +50,6 @@ win32 {
     mingw {
         # otherwise mingw headers do not declare common functions like putenv
         CONFIG -= strict_c++
-        # Override MinGW's definition in _mingw.h
-        DEFINES += WINVER=0x600 _WIN32_WINNT=0x0600
     }
     LIBS_PRIVATE += -lws2_32
     !winrt {
@@ -156,3 +154,5 @@ ctest_qt5_module_files.files += $$ctest_macros_file.output $$cmake_extras_mkspec
 ctest_qt5_module_files.path = $$[QT_INSTALL_LIBS]/cmake/Qt5Core
 
 INSTALLS += ctest_qt5_module_files cmake_qt5_umbrella_module_files
+
+QMAKE_DSYM_DEBUG_SCRIPT = $$PWD/debug_script.py

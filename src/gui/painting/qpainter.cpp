@@ -5850,6 +5850,7 @@ void QPainter::drawText(const QPointF &p, const QString &str, int tf, int justif
     if (!d->engine || str.isEmpty() || pen().style() == Qt::NoPen)
         return;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (tf & Qt::TextBypassShaping) {
         // Skip complex shaping, shape using glyph advances only
         int len = str.length();
@@ -5863,6 +5864,7 @@ void QPainter::drawText(const QPointF &p, const QString &str, int tf, int justif
         drawTextItem(p, gf);
         return;
     }
+#endif
 
     QStackTextEngine engine(str, d->state->font);
     engine.option.setTextDirection(d->state->layoutDirection);
@@ -7419,7 +7421,7 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
         if (option->flags() & QTextOption::IncludeTrailingSpaces)
             tf |= Qt::TextIncludeTrailingSpaces;
 
-        if (option->tabStop() >= 0 || !option->tabArray().isEmpty())
+        if (option->tabStopDistance() >= 0 || !option->tabArray().isEmpty())
             tf |= Qt::TextExpandTabs;
     }
 
@@ -7536,8 +7538,8 @@ start_lengthVariant:
         engine.option = *option;
     }
 
-    if (engine.option.tabStop() < 0 && tabstops > 0)
-        engine.option.setTabStop(tabstops);
+    if (engine.option.tabStopDistance() < 0 && tabstops > 0)
+        engine.option.setTabStopDistance(tabstops);
 
     if (engine.option.tabs().isEmpty() && ta) {
         QList<qreal> tabs;

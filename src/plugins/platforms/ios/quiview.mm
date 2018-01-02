@@ -48,7 +48,6 @@
 #include "qiosmenu.h"
 #endif
 
-#include <QtCore/qoperatingsystemversion.h>
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/private/qwindow_p.h>
 #include <qpa/qwindowsysteminterface_p.h>
@@ -62,10 +61,11 @@
 
 - (id)initWithQIOSWindow:(QT_PREPEND_NAMESPACE(QIOSWindow) *)window
 {
-    if (self = [self initWithFrame:window->geometry().toCGRect()])
+    if (self = [self initWithFrame:window->geometry().toCGRect()]) {
         m_qioswindow = window;
+        m_accessibleElements = [[NSMutableArray alloc] init];
+    }
 
-    m_accessibleElements = [[NSMutableArray alloc] init];
     return self;
 }
 
@@ -102,6 +102,13 @@
     }
 
     return self;
+}
+
+- (void)dealloc
+{
+    [m_accessibleElements release];
+
+    [super dealloc];
 }
 
 - (void)willMoveToWindow:(UIWindow *)newWindow
@@ -151,23 +158,12 @@
         qWarning() << m_qioswindow->window()
             << "is backed by a UIView that has a transform set. This is not supported.";
 
-    // The original geometry requested by setGeometry() might be different
-    // from what we end up with after applying window constraints.
-    QRect requestedGeometry = m_qioswindow->geometry();
-
-    QRect actualGeometry = QRectF::fromCGRect(self.frame).toRect();
-
-    // Persist the actual/new geometry so that QWindow::geometry() can
-    // be queried on the resize event.
-    m_qioswindow->QPlatformWindow::setGeometry(actualGeometry);
-
-    QRect previousGeometry = requestedGeometry != actualGeometry ?
-            requestedGeometry : qt_window_private(m_qioswindow->window())->geometry;
-
     QWindow *window = m_qioswindow->window();
-    QWindowSystemInterface::handleGeometryChange<QWindowSystemInterface::SynchronousDelivery>(window, actualGeometry, previousGeometry);
+    QRect lastReportedGeometry = qt_window_private(window)->geometry;
+    QRect currentGeometry = QRectF::fromCGRect(self.frame).toRect();
+    QWindowSystemInterface::handleGeometryChange<QWindowSystemInterface::SynchronousDelivery>(window, currentGeometry);
 
-    if (actualGeometry.size() != previousGeometry.size()) {
+    if (currentGeometry.size() != lastReportedGeometry.size()) {
         // Trigger expose event on resize
         [self setNeedsDisplay];
 
@@ -297,7 +293,7 @@
     QTouchDevice *touchDevice = QIOSIntegration::instance()->touchDevice();
     QTouchDevice::Capabilities touchCapabilities = touchDevice->capabilities();
 
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::IOS, 9)) {
+    if (__builtin_available(iOS 9, *)) {
         if (self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable)
             touchCapabilities |= QTouchDevice::Pressure;
         else

@@ -1324,6 +1324,30 @@
 
     \snippet code/doc_src_qmake-manual.pro 40
 
+    \target OBJECTIVE_HEADERS
+    \section1 OBJECTIVE_HEADERS
+
+    Defines the Objective-C++ header files for the project.
+
+    qmake automatically detects whether \l{moc} is required by the classes in the
+    headers, and adds the appropriate dependencies and files to the project for
+    generating and linking the moc files.
+
+    This is similar to the HEADERS variable, but will let the generated moc
+    files be compiled with the Objective-C++ compiler.
+
+    See also \l{#OBJECTIVE_SOURCES}{OBJECTIVE_SOURCES}.
+
+    \target OBJECTIVE_SOURCES
+    \section1 OBJECTIVE_SOURCES
+
+    Specifies the names of all Objective-C/C++ source files in the project.
+
+    This variable is now obsolete, Objective-C/C++ files (.m and .mm) can be
+    added to the \l{#SOURCES}{SOURCES} variable.
+
+    See also \l{#OBJECTIVE_HEADERS}{OBJECTIVE_HEADERS}.
+
     \target OBJECTS
     \section1 OBJECTS
 
@@ -2265,6 +2289,14 @@
     Specifies the hard minimum version of tvOS that the application supports.
 
     For more information, see \l {Expressing Supported iOS Versions}.
+
+    \section1 QMAKE_UIC_FLAGS
+
+    This variable is used to customize the list of options passed to the
+    \l{uic}{User Interface Compiler} in each of the build rules where it is
+    used. For example, \c{-no-stringliteral} can be passed to use QLatin1String
+    instead of QStringLiteral in generated code (which is the default for
+    dynamic libraries).
 
     \section1 QMAKE_WATCHOS_DEPLOYMENT_TARGET
 
@@ -3556,6 +3588,20 @@
     For example:
 
     \snippet code/doc_src_qmake-manual.pro 169
+
+    \section2 versionAtLeast(variablename, versionNumber)
+
+    Tests that the version number from \c variablename is greater than or equal
+    to \c versionNumber. The version number is considered to be a sequence of
+    non-negative decimal numbers delimited by '.'; any non-numerical tail of
+    the string will be ignored. Comparison is performed segment-wise from left
+    to right; if one version is a prefix of the other, it is considered smaller.
+
+    \section2 versionAtMost(variablename, versionNumber)
+
+    Tests that the version number from \c variablename is less than or equal to
+    \c versionNumber. Works as
+    \l{versionAtLeast(variablename, versionNumber)}{versionAtLeast()}.
 
     \section2 warning(string)
 

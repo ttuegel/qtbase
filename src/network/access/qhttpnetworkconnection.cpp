@@ -627,7 +627,8 @@ QHttpNetworkReply* QHttpNetworkConnectionPrivate::queueRequest(const QHttpNetwor
     if (request.isPreConnect())
         preConnectRequests++;
 
-    if (connectionType == QHttpNetworkConnection::ConnectionTypeHTTP) {
+    if (connectionType == QHttpNetworkConnection::ConnectionTypeHTTP
+        || (!encrypt && connectionType == QHttpNetworkConnection::ConnectionTypeHTTP2 && !channels[0].switchedToHttp2)) {
         switch (request.priority()) {
         case QHttpNetworkRequest::HighPriority:
             highPriorityQueue.prepend(pair);
@@ -638,12 +639,13 @@ QHttpNetworkReply* QHttpNetworkConnectionPrivate::queueRequest(const QHttpNetwor
             break;
         }
     }
-    else { // SPDY, HTTP/2
+    else { // SPDY, HTTP/2 ('h2' mode)
         if (!pair.second->d_func()->requestIsPrepared)
             prepareRequest(pair);
         channels[0].spdyRequestsToSend.insertMulti(request.priority(), pair);
     }
 
+#ifndef Q_OS_WINRT
     // For Happy Eyeballs the networkLayerState is set to Unknown
     // untill we have started the first connection attempt. So no
     // request will be started untill we know if IPv4 or IPv6
@@ -651,6 +653,13 @@ QHttpNetworkReply* QHttpNetworkConnectionPrivate::queueRequest(const QHttpNetwor
     if (networkLayerState == Unknown || networkLayerState == HostLookupPending) {
         startHostInfoLookup();
     } else if ( networkLayerState == IPv4 || networkLayerState == IPv6 ) {
+#else // !Q_OS_WINRT
+    {
+        // Skip the host lookup part for winrt. Host lookup and proxy handling are done by Windows
+        // internally and networkLayerPreference is ignored on this platform. Instead of refactoring
+        // the whole approach we just pretend that everything important is known here.
+        networkLayerState = IPv4;
+#endif
         // this used to be called via invokeMethod and a QueuedConnection
         // It is the only place _q_startNextRequest is called directly without going
         // through the event loop using a QueuedConnection.
@@ -662,6 +671,25 @@ QHttpNetworkReply* QHttpNetworkConnectionPrivate::queueRequest(const QHttpNetwor
         _q_startNextRequest();
     }
     return reply;
+}
+
+void QHttpNetworkConnectionPrivate::fillHttp2Queue()
+{
+    for (auto &pair : highPriorityQueue) {
+        if (!pair.second->d_func()->requestIsPrepared)
+            prepareRequest(pair);
+        channels[0].spdyRequestsToSend.insertMulti(QHttpNetworkRequest::HighPriority, pair);
+    }
+
+    highPriorityQueue.clear();
+
+    for (auto &pair : lowPriorityQueue) {
+        if (!pair.second->d_func()->requestIsPrepared)
+            prepareRequest(pair);
+        channels[0].spdyRequestsToSend.insertMulti(pair.first.priority(), pair);
+    }
+
+    lowPriorityQueue.clear();
 }
 
 void QHttpNetworkConnectionPrivate::requeueRequest(const HttpMessagePair &pair)
@@ -1039,8 +1067,7 @@ void QHttpNetworkConnectionPrivate::_q_startNextRequest()
     }
     case QHttpNetworkConnection::ConnectionTypeHTTP2:
     case QHttpNetworkConnection::ConnectionTypeSPDY: {
-
-        if (channels[0].spdyRequestsToSend.isEmpty())
+        if (channels[0].spdyRequestsToSend.isEmpty() && channels[0].switchedToHttp2)
             return;
 
         if (networkLayerState == IPv4)
@@ -1049,7 +1076,7 @@ void QHttpNetworkConnectionPrivate::_q_startNextRequest()
             channels[0].networkLayerPreference = QAbstractSocket::IPv6Protocol;
         channels[0].ensureConnection();
         if (channels[0].socket && channels[0].socket->state() == QAbstractSocket::ConnectedState
-                && !channels[0].pendingEncrypt)
+                && !channels[0].pendingEncrypt && channels[0].spdyRequestsToSend.size())
             channels[0].sendRequest();
         break;
     }
@@ -1347,6 +1374,12 @@ QHttpNetworkReply* QHttpNetworkConnection::sendRequest(const QHttpNetworkRequest
     return d->queueRequest(request);
 }
 
+void QHttpNetworkConnection::fillHttp2Queue()
+{
+    Q_D(QHttpNetworkConnection);
+    d->fillHttp2Queue();
+}
+
 bool QHttpNetworkConnection::isSsl() const
 {
     Q_D(const QHttpNetworkConnection);
@@ -1402,6 +1435,23 @@ void QHttpNetworkConnection::setConnectionType(ConnectionType type)
 {
     Q_D(QHttpNetworkConnection);
     d->connectionType = type;
+}
+
+Http2::ProtocolParameters QHttpNetworkConnection::http2Parameters() const
+{
+    Q_D(const QHttpNetworkConnection);
+    return d->http2Parameters;
+}
+
+void QHttpNetworkConnection::setHttp2Parameters(const Http2::ProtocolParameters &params)
+{
+    Q_D(QHttpNetworkConnection);
+    if (params.validate()) {
+        d->http2Parameters = params;
+    } else {
+        qCWarning(QT_HTTP2)
+            << "invalid HTTP/2 parameters, falling back to defaults instead";
+    }
 }
 
 // SSL support below

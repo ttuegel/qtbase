@@ -265,12 +265,9 @@ void TableGenerator::initPossibleLocations()
     m_possibleLocations.reserve(7);
     if (qEnvironmentVariableIsSet("QTCOMPOSE"))
         m_possibleLocations.append(QString::fromLocal8Bit(qgetenv("QTCOMPOSE")));
-    m_possibleLocations.append(QStringLiteral("/usr/share/X11/locale"));
-    m_possibleLocations.append(QStringLiteral("/usr/local/share/X11/locale"));
-    m_possibleLocations.append(QStringLiteral("/usr/lib/X11/locale"));
-    m_possibleLocations.append(QStringLiteral("/usr/local/lib/X11/locale"));
     m_possibleLocations.append(QStringLiteral(X11_PREFIX "/share/X11/locale"));
     m_possibleLocations.append(QStringLiteral(X11_PREFIX "/lib/X11/locale"));
+    m_possibleLocations.append(QLatin1String(NIXPKGS_QTCOMPOSE));
 }
 
 QString TableGenerator::findComposeFile()
@@ -520,7 +517,7 @@ static inline int fromBase8(const char *s, const char *end)
 {
     int result = 0;
     while (*s && s != end) {
-        if (*s <= '0' || *s >= '7')
+        if (*s < '0' || *s > '7')
             return 0;
         result *= 8;
         result += *s - '0';

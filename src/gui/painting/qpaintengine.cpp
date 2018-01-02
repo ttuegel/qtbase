@@ -547,8 +547,8 @@ void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap)
     }
 }
 
-void qt_draw_tile(QPaintEngine *gc, qreal x, qreal y, qreal w, qreal h,
-                  const QPixmap &pixmap, qreal xOffset, qreal yOffset)
+Q_GUI_EXPORT void qt_draw_tile(QPaintEngine *gc, qreal x, qreal y, qreal w, qreal h,
+                               const QPixmap &pixmap, qreal xOffset, qreal yOffset)
 {
     qreal yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
@@ -929,11 +929,11 @@ QPoint QPaintEngine::coordinateOffset() const
 void QPaintEngine::setSystemClip(const QRegion &region)
 {
     Q_D(QPaintEngine);
-    d->systemClip = region;
+    d->baseSystemClip = region;
     // Be backward compatible and only call d->systemStateChanged()
     // if we currently have a system transform/viewport set.
+    d->updateSystemClip();
     if (d->hasSystemTransform || d->hasSystemViewport) {
-        d->transformSystemClip();
         d->systemStateChanged();
     }
 }

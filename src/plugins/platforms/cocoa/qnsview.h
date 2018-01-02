@@ -51,19 +51,12 @@
 
 QT_BEGIN_NAMESPACE
 class QCocoaWindow;
-class QCocoaBackingStore;
 class QCocoaGLContext;
 QT_END_NAMESPACE
 
 Q_FORWARD_DECLARE_OBJC_CLASS(QT_MANGLE_NAMESPACE(QNSViewMouseMoveHelper));
 
 @interface QT_MANGLE_NAMESPACE(QNSView) : NSView <NSTextInputClient> {
-    QCocoaBackingStore* m_backingStore;
-    QPoint m_backingStoreOffset;
-    QRegion m_maskRegion;
-    CGImageRef m_maskImage;
-    uchar *m_maskData;
-    bool m_shouldInvalidateWindowShadow;
     QPointer<QCocoaWindow> m_platformWindow;
     NSTrackingArea *m_trackingArea;
     Qt::MouseButtons m_buttons;
@@ -73,6 +66,7 @@ Q_FORWARD_DECLARE_OBJC_CLASS(QT_MANGLE_NAMESPACE(QNSViewMouseMoveHelper));
     QPointer<QObject> m_composingFocusObject;
     bool m_sendKeyEvent;
     QStringList *currentCustomDragTypes;
+    bool m_dontOverrideCtrlLMB;
     bool m_sendUpAsRightButton;
     Qt::KeyboardModifiers currentWheelModifiers;
 #ifndef QT_NO_OPENGL
@@ -89,28 +83,22 @@ Q_FORWARD_DECLARE_OBJC_CLASS(QT_MANGLE_NAMESPACE(QNSViewMouseMoveHelper));
     QSet<quint32> m_acceptedKeyDowns;
 }
 
+@property (nonatomic, retain) NSCursor *cursor;
+
 - (id)init;
 - (id)initWithCocoaWindow:(QCocoaWindow *)platformWindow;
 #ifndef QT_NO_OPENGL
 - (void)setQCocoaGLContext:(QCocoaGLContext *)context;
 #endif
-- (void)flushBackingStore:(QCocoaBackingStore *)backingStore region:(const QRegion &)region offset:(QPoint)offset;
-- (void)clearBackingStore:(QCocoaBackingStore *)backingStore;
-- (void)setMaskRegion:(const QRegion *)region;
-- (void)invalidateWindowShadowIfNeeded;
 - (void)drawRect:(NSRect)dirtyRect;
-- (void)drawBackingStoreUsingCoreGraphics:(NSRect)dirtyRect;
-- (void)updateGeometry;
 - (void)textInputContextKeyboardSelectionDidChangeNotification : (NSNotification *) textInputContextKeyboardSelectionDidChangeNotification;
 - (void)viewDidHide;
-- (void)viewDidUnhide;
 - (void)removeFromSuperview;
 - (void)cancelComposingText;
 
 - (BOOL)isFlipped;
 - (BOOL)acceptsFirstResponder;
 - (BOOL)becomeFirstResponder;
-- (BOOL)hasMask;
 - (BOOL)isOpaque;
 
 - (void)convertFromScreen:(NSPoint)mouseLocation toWindowPoint:(QPointF *)qtWindowPoint andScreenPoint:(QPointF *)qtScreenPoint;

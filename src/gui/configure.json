@@ -39,7 +39,9 @@
             "qpa-platform-guard": "boolean",
             "sm": { "type": "boolean", "name": "sessionmanager" },
             "tslib": "boolean",
+            "vulkan": "boolean",
             "xcb": { "type": "enum", "values": [ "no", "yes", "qt", "system" ] },
+            "xcb-native-painting": "boolean",
             "xcb-xlib": "boolean",
             "xinput2": "boolean",
             "xkb": "boolean",
@@ -393,6 +395,14 @@
                 "-lts"
             ]
         },
+        "vulkan": {
+            "label": "Vulkan",
+            "test": "qpa/vulkan",
+            "sources": [
+                { "type": "pkgConfig", "args": "vulkan" },
+                { "type": "makeSpec", "spec": "VULKAN" }
+            ]
+        },
         "wayland_server": {
             "label": "Wayland Server",
             "test": {
@@ -582,6 +592,13 @@
             "export": "xkbcommon",
             "sources": [
                 { "type": "pkgConfig", "args": "xkbcommon xkbcommon-x11 >= 0.4.1" }
+            ]
+        },
+        "xrender": {
+            "label": "XRender for native painting",
+            "test": "x11/xrender",
+            "sources": [
+                "-lXrender"
             ]
         }
     },
@@ -797,6 +814,12 @@
                     "glProgramUniform1i(0, 0, 0);"
                 ]
             },
+            "use": "opengl_es2"
+        },
+        "opengles32": {
+            "label": "OpenGL ES 3.2",
+            "type": "compile",
+            "test": "unix/opengles32",
             "use": "opengl_es2"
         },
         "qpa_default_platform": {
@@ -1015,6 +1038,14 @@
                 { "type": "define", "name": "QT_OPENGL_ES_3_1" }
             ]
         },
+        "opengles32": {
+            "label": "OpenGL ES 3.2",
+            "condition": "features.opengles31 && tests.opengles32",
+            "output": [
+                "publicFeature",
+                { "type": "define", "name": "QT_OPENGL_ES_3_2" }
+            ]
+        },
         "opengl-desktop": {
             "label": "Desktop OpenGL",
             "enable": "input.opengl == 'desktop'",
@@ -1036,6 +1067,11 @@
             "label": "OpenGL",
             "condition": "features.opengl-desktop || features.opengl-dynamic || features.opengles2",
             "output": [ "publicFeature", "feature" ]
+        },
+        "vulkan": {
+            "label": "Vulkan",
+            "condition": "libs.vulkan",
+            "output": [ "publicFeature" ]
         },
         "openvg": {
             "label": "OpenVG",
@@ -1177,6 +1213,18 @@
             "label": "XCB GLX",
             "emitIf": "features.xcb",
             "condition": "libs.xcb_glx",
+            "output": [ "privateFeature" ]
+        },
+        "xcb-native-painting": {
+            "label": "Native painting (experimental)",
+            "emitIf": "features.xcb",
+            "condition": "features.xcb-xlib && features.fontconfig && libs.xrender",
+            "output": [ "privateFeature" ]
+        },
+        "xrender": {
+            "label": "XRender for native painting",
+            "emitIf": "features.xcb && features.xcb-native-painting",
+            "condition": "features.xcb-native-painting",
             "output": [ "privateFeature" ]
         },
         "xcb-render": {
@@ -1534,9 +1582,11 @@ QMAKE_LIBDIR_OPENGL[_ES2] and QMAKE_LIBS_OPENGL[_ES2] in the mkspec for your pla
                         },
                         "opengles2",
                         "opengles3",
-                        "opengles31"
+                        "opengles31",
+                        "opengles32"
                     ]
                 },
+                "vulkan",
                 "sessionmanager"
             ]
         },
@@ -1579,7 +1629,7 @@ QMAKE_LIBDIR_OPENGL[_ES2] and QMAKE_LIBS_OPENGL[_ES2] in the mkspec for your pla
                     "section": "X11",
                     "condition": "features.xcb",
                     "entries": [
-                        "system-xcb", "egl_x11", "xinput2", "xkb", "xlib", "xcb-render", "xcb-glx", "xcb-xlib", "xkbcommon-system"
+                        "system-xcb", "egl_x11", "xinput2", "xkb", "xlib", "xcb-render", "xcb-glx", "xcb-xlib", "xkbcommon-system", "xcb-native-painting"
                     ]
                 },
                 {

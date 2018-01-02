@@ -287,7 +287,7 @@ void QScanThread::getUserConfigurations()
     QMacAutoReleasePool pool;
     userProfiles.clear();
 
-    NSArray<NSString *> *wifiInterfaces = [CWWiFiClient interfaceNames];
+    NSArray *wifiInterfaces = [CWWiFiClient interfaceNames];
     for (NSString *ifName in wifiInterfaces) {
 
         CWInterface *wifiInterface = [[CWWiFiClient sharedWiFiClient] interfaceWithName:ifName];
@@ -602,7 +602,7 @@ void QCoreWlanEngine::doRequestUpdate()
 
     QMacAutoReleasePool pool;
 
-    NSArray<NSString *> *wifiInterfaces = [CWWiFiClient interfaceNames];
+    NSArray *wifiInterfaces = [CWWiFiClient interfaceNames];
     for (NSString *ifName in wifiInterfaces) {
             scanThread->interfaceName = QString::fromNSString(ifName);
             scanThread->start();
